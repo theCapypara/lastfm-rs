@@ -3,7 +3,7 @@
 //! Contains structs and methods related to working with the user-related endpoints
 //! available through the Last.fm API.
 
-use crate::model::{Artist, Track};
+use crate::model::{Album, Artist, Track};
 use serde::Deserialize;
 
 pub mod loved_tracks;
@@ -11,6 +11,7 @@ pub mod recent_tracks;
 pub mod top_artists;
 pub mod top_tracks;
 pub mod user_info;
+pub mod top_albums;
 
 #[derive(Debug, Deserialize)]
 pub struct User {
@@ -18,6 +19,8 @@ pub struct User {
     pub loved_tracks: Option<loved_tracks::LovedTracks>,
     #[serde(rename = "recenttracks")]
     pub recent_tracks: Option<recent_tracks::RecentTracks>,
+    #[serde(rename = "topalbums")]
+    pub top_albums: Option<top_albums::TopAlbums>,
     #[serde(rename = "topartists")]
     pub top_artists: Option<top_artists::TopArtists>,
     #[serde(rename = "user")]

@@ -23,4 +23,6 @@ considered.
 
 `user.getTopArtists` - Gets a users' top artists.
 
+`user.getTopAlbums` - Gets a users' top albums.
+
 `user.getUserInfo` - Gets basic information about a given user.
