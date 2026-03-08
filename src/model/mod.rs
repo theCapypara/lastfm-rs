@@ -14,7 +14,7 @@ use crate::utilities::deserialize_datetime_from_str;
 pub mod custom_deserialization;
 
 /// Various attributes transmitted by several API endpoints.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Attributes {
     /// The given Page currently paginated in the API.
     pub page: String,
@@ -33,7 +33,7 @@ pub struct Attributes {
 /// The Date object. Consists of a raw UTC date (able to be formatted), and an already
 /// formatted date string ready to be used. The raw date uses the chrono date & time
 /// library to format the date.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct TrackDate {
     /// The date of when the given Track was scrobbled or loved, in UTC.
     ///
@@ -51,7 +51,7 @@ pub struct TrackDate {
 /// The Image structure. Contains a couple fields solely related to images
 /// such as the image's size, and a link to the image hosted on Last.fm's
 /// content delivery network.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Image {
     /// The size of the image. Can be small, medium, or large.
     #[serde(rename = "size")]
@@ -62,7 +62,7 @@ pub struct Image {
 }
 
 /// Contains information about the given track
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Track {
     /// The artist who published the  given track.
     #[serde(deserialize_with = "string_or_struct")]
@@ -78,12 +78,12 @@ pub struct Track {
     /// Not always returned, for example, loved tracks do not include a playcount
     pub playcount: Option<String>,
     /// The album the track is associated with.
-    pub album: Option<Album>,
+    pub album: Option<Box<Album>>,
     /// The last.fm URL of the track.
     pub url: String,
     /// Images associated with the track.
-    #[serde(rename = "image")]
-    pub images: Vec<Image>,
+    #[serde(rename = "image", default)]
+    pub images: OneOrVec<Image>,
     /// The date of when the track was scrobbled.
     /// Returned when output comes from some endpoints such as loved_tracks
     pub date: Option<TrackDate>,
@@ -95,7 +95,7 @@ pub struct Track {
     pub r#match: Option<f32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct TrackAttributes {
     /// Whether or not the user's first available track is the
     /// one the user is currently playing.
@@ -114,14 +114,27 @@ impl FromStr for Streamable {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Album {
     /// The name of the album.
-    #[serde(rename = "#text")]
+    #[serde(alias = "name", alias = "#text")]
     pub name: String,
+    /// The artist of the album.
+    #[serde(deserialize_with = "string_or_struct")]
+    pub artist: Artist,
+    /// The MusicBrainz ID of the given album.
+    pub mbid: Option<String>,
+    /// The tracks of the album.
+    pub tracks: Option<Tracks>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
+pub struct Tracks {
+    #[serde(rename = "track", default)]
+    pub tracks: OneOrVec<Track>
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Artist {
     /// The name of the artist.
     #[serde(alias = "#text")]
@@ -156,7 +169,7 @@ impl FromStr for Artist {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ArtistAttributes {
     /// Where the artist is ranked in the user's profile.
     pub rank: Option<String>,
@@ -165,9 +178,40 @@ pub struct ArtistAttributes {
 /// The streamable struct.
 ///
 /// Available if the given track is available for streaming.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Streamable {
     pub fulltrack: Option<String>,
     #[serde(rename = "#text")]
     pub text: String,
+}
+
+/// Generic wrapper that allow one or more occurrences of specified type.
+///
+/// In the API response, this was either a list of elements T or just element T.
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum OneOrVec<T> {
+    One(T),
+    Vec(Vec<T>)
+}
+
+impl<T> From<OneOrVec<T>> for Vec<T> {
+    fn from(from: OneOrVec<T>) -> Self {
+        match from {
+            OneOrVec::One(val) => vec![val],
+            OneOrVec::Vec(vec) => vec,
+        }
+    }
+}
+
+impl<T> OneOrVec<T> {
+    pub fn entries(self) -> Vec<T> {
+        self.into()
+    }
+}
+
+impl<T> Default for OneOrVec<T> {
+    fn default() -> Self {
+        Self::Vec(vec![])
+    }
 }

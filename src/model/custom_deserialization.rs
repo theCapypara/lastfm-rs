@@ -4,7 +4,7 @@
 // the `string_or_struct` function uses these impl to instantiate a Type
 // if the input file contains a string and not a struct.
 
-use serde::de::{self, MapAccess, Visitor};
+use serde::de::{self, Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 use std::marker::PhantomData;
