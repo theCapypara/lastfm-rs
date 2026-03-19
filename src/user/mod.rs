@@ -8,10 +8,10 @@ use serde::Deserialize;
 
 pub mod loved_tracks;
 pub mod recent_tracks;
+pub mod top_albums;
 pub mod top_artists;
 pub mod top_tracks;
 pub mod user_info;
-pub mod top_albums;
 
 #[derive(Debug, Deserialize)]
 pub struct User {

@@ -35,6 +35,7 @@ use reqwest::{Client as ReqwestClient, Error, Response};
 use std::marker::PhantomData;
 use url::Url;
 
+#[macro_use]
 pub mod macros;
 pub mod album;
 pub mod artist;

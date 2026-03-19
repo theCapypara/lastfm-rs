@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use std::marker::PhantomData;
 
@@ -37,6 +38,16 @@ impl RecentTracks {
 impl<'a> RequestBuilder<'a, RecentTracks> {
     add_param!(with_limit, limit, usize);
     add_param!(with_page, page, usize);
+
+    pub fn with_from(&'a mut self, v: DateTime<Utc>) -> &'a mut Self {
+        self.url.query_pairs_mut().append_pair("from", &*v.timestamp().to_string());
+        self
+    }
+
+    pub fn with_to(&'a mut self, v: DateTime<Utc>) -> &'a mut Self {
+        self.url.query_pairs_mut().append_pair("to", &*v.timestamp().to_string());
+        self
+    }
 
     pub async fn send(&'a mut self) -> Result<RecentTracks, Error> {
         match self.client.request(&self.url).await {

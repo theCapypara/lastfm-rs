@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use crate::{
-    error::{Error, LastFMError},
     album::Endpoints,
+    error::{Error, LastFMError},
     Client, RequestBuilder,
 };
 

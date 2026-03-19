@@ -2,9 +2,9 @@ use serde::Deserialize;
 use std::marker::PhantomData;
 
 use crate::{
+    artist::Endpoints,
     error::{Error, LastFMError},
     model::Track,
-    artist::Endpoints,
     Client, RequestBuilder,
 };
 

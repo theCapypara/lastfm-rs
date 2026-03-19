@@ -1,13 +1,13 @@
 use serde::Deserialize;
 use std::marker::PhantomData;
 
+use crate::user::top_artists::Period;
 use crate::{
     error::{Error, LastFMError},
     model::Attributes,
     user::{Album, User},
     Client, RequestBuilder,
 };
-use crate::user::top_artists::Period;
 
 /// The main top albums structure.
 ///

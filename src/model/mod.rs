@@ -120,8 +120,8 @@ pub struct Album {
     #[serde(alias = "name", alias = "#text")]
     pub name: String,
     /// The artist of the album.
-    #[serde(deserialize_with = "string_or_struct")]
-    pub artist: Artist,
+    #[serde(default, deserialize_with = "option_string_or_struct")]
+    pub artist: Option<Artist>,
     /// The MusicBrainz ID of the given album.
     pub mbid: Option<String>,
     /// The tracks of the album.
@@ -131,7 +131,7 @@ pub struct Album {
 #[derive(Clone, Debug, Default, Deserialize)]
 pub struct Tracks {
     #[serde(rename = "track", default)]
-    pub tracks: OneOrVec<Track>
+    pub tracks: OneOrVec<Track>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -192,7 +192,7 @@ pub struct Streamable {
 #[serde(untagged)]
 pub enum OneOrVec<T> {
     One(T),
-    Vec(Vec<T>)
+    Vec(Vec<T>),
 }
 
 impl<T> From<OneOrVec<T>> for Vec<T> {
